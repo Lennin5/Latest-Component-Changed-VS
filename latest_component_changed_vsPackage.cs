@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace LatestComponentChangedVS
 {
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("Custom Extension", "Updates status bar with the latest component changed in -gitconfig variable", "3.0")]
+    [InstalledProductRegistration("Custom Extension", "Updates status bar with the latest component changed in -gitconfig variable", "4.0")]
     [ProvideAutoLoad(UIContextGuids80.NoSolution, PackageAutoLoadFlags.BackgroundLoad)]
     [Guid(MyCommandPackage.PackageGuidString)]
     public sealed class MyCommandPackage : AsyncPackage, IVsSolutionEvents

@@ -3,12 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\lennin\\Desktop\\Proyectos Personales\\latest-component-changed-vs\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{54D61F3F-09E1-4516-9C66-C668C62E29BF}|latest-component-changed-vs.csproj|c:\\users\\lennin\\desktop\\proyectos personales\\latest-component-changed-vs\\latest_component_changed_vspackage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{54D61F3F-09E1-4516-9C66-C668C62E29BF}|latest-component-changed-vs.csproj|solutionrelative:latest_component_changed_vspackage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{54D61F3F-09E1-4516-9C66-C668C62E29BF}|latest-component-changed-vs.csproj|c:\\users\\lennin\\desktop\\proyectos personales\\latest-component-changed-vs\\source.extension.vsixmanifest||{2868F8ED-DE25-439D-9F59-AD52458E9328}",
       "RelativeMoniker": "D:0:0:{54D61F3F-09E1-4516-9C66-C668C62E29BF}|latest-component-changed-vs.csproj|solutionrelative:source.extension.vsixmanifest||{2868F8ED-DE25-439D-9F59-AD52458E9328}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{54D61F3F-09E1-4516-9C66-C668C62E29BF}|latest-component-changed-vs.csproj|C:\\Users\\lennin\\Desktop\\Proyectos Personales\\latest-component-changed-vs\\latest_component_changed_vspackage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{54D61F3F-09E1-4516-9C66-C668C62E29BF}|latest-component-changed-vs.csproj|solutionrelative:latest_component_changed_vspackage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,11 +18,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "source.extension.vsixmanifest [Design]",
               "DocumentMoniker": "C:\\Users\\lennin\\Desktop\\Proyectos Personales\\latest-component-changed-vs\\source.extension.vsixmanifest",
               "RelativeDocumentMoniker": "source.extension.vsixmanifest",
@@ -34,16 +34,15 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "latest_component_changed_vsPackage.cs",
               "DocumentMoniker": "C:\\Users\\lennin\\Desktop\\Proyectos Personales\\latest-component-changed-vs\\latest_component_changed_vsPackage.cs",
               "RelativeDocumentMoniker": "latest_component_changed_vsPackage.cs",
               "ToolTip": "C:\\Users\\lennin\\Desktop\\Proyectos Personales\\latest-component-changed-vs\\latest_component_changed_vsPackage.cs",
               "RelativeToolTip": "latest_component_changed_vsPackage.cs",
-              "ViewState": "AQIAAFUAAAAAAAAAAAAqwGQAAAAuAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAAABAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-08T16:36:05.567Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-07-08T16:36:05.567Z"
             }
           ]
         }
