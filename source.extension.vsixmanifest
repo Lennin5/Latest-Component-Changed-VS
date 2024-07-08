@@ -3,7 +3,7 @@
     <Metadata>
         <Identity Id="latest_component_changed_vs.8f8e2db8-9203-4c16-bfdb-a63ab4244009" Version="1.0" Language="en-US" Publisher="HP" />
         <DisplayName>Latest Component Changed</DisplayName>
-        <Description xml:space="preserve">Empty VSIX Project.</Description>
+        <Description xml:space="preserve">This is a Visual Studio's extension that prints/update the .gitconfig custom variable called "latest-component-changed" in statusBar of IDE</Description>
         <Icon>assets\icon.png</Icon>
     </Metadata>
     <Installation>
