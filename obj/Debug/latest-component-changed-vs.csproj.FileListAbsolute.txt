@@ -1,0 +1,17 @@
+C:\Users\lennin\Desktop\Proyectos Personales\latest-component-changed-vs\bin\Debug\latest-component-changed-vs.dll
+C:\Users\lennin\Desktop\Proyectos Personales\latest-component-changed-vs\bin\Debug\latest-component-changed-vs.pdb
+C:\Users\lennin\Desktop\Proyectos Personales\latest-component-changed-vs\bin\Debug\latest-component-changed-vs.pkgdef
+C:\Users\lennin\Desktop\Proyectos Personales\latest-component-changed-vs\bin\Debug\latest-component-changed-vs.vsix
+C:\Users\lennin\Desktop\Proyectos Personales\latest-component-changed-vs\bin\Debug\extension.vsixmanifest
+C:\Users\lennin\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\latest-component-changed-vs.csproj.AssemblyReference.cache
+C:\Users\lennin\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\_EmptyResource.resources
+C:\Users\lennin\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\latest-component-changed-vs.csproj.GenerateResource.cache
+C:\Users\lennin\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\latest-component-changed-vs.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\lennin\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\latest-component-changed-vs.csproj.CoreCompileInputs.cache
+C:\Users\lennin\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\latest-component-changed-vs.dll
+C:\Users\lennin\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\latest-component-changed-vs.pdb
+C:\Users\lennin\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\latest-component-changed-vs.pkgdef
+C:\Users\lennin\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\latest-component-changed-vs.latest.pkgdef
+C:\Users\lennin\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\extension.vsixmanifest
+C:\Users\lennin\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\files.json
+C:\Users\lennin\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\createTemplateManifests.cache
