@@ -1,3 +1,4 @@
+C:\Users\lennin\Desktop\Proyectos Personales\latest-component-changed-vs\bin\Debug\icon.ico
 C:\Users\lennin\Desktop\Proyectos Personales\latest-component-changed-vs\bin\Debug\icon.png
 C:\Users\lennin\Desktop\Proyectos Personales\latest-component-changed-vs\bin\Debug\latest-component-changed-vs.dll
 C:\Users\lennin\Desktop\Proyectos Personales\latest-component-changed-vs\bin\Debug\latest-component-changed-vs.pdb
@@ -16,4 +17,3 @@ C:\Users\lennin\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Deb
 C:\Users\lennin\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\extension.vsixmanifest
 C:\Users\lennin\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\files.json
 C:\Users\lennin\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\createTemplateManifests.cache
-C:\Users\lennin\Desktop\Proyectos Personales\latest-component-changed-vs\bin\Debug\icon.ico

@@ -1,5 +1,4 @@
-﻿using EnvDTE;
-using Microsoft;
+﻿using Microsoft;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -13,7 +12,7 @@ using System.Threading.Tasks;
 namespace LatestComponentChangedVS
 {
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("Custom Extension", "Updates status bar with the latest component changed in -gitconfig variable", "4.0")]
+    [InstalledProductRegistration("Custom Extension", "Updates status bar with the latest component changed in -gitconfig variable", "5.0")]
     [ProvideAutoLoad(UIContextGuids80.NoSolution, PackageAutoLoadFlags.BackgroundLoad)]
     [Guid(MyCommandPackage.PackageGuidString)]
     public sealed class MyCommandPackage : AsyncPackage, IVsSolutionEvents
@@ -94,7 +93,17 @@ namespace LatestComponentChangedVS
                 {
                     if (line.Contains(variableName))
                     {
-                        return "</> " + line.Split('=')[1].Trim();
+                        // Si la variable está vacía, retornar un mensaje
+                        if (line.Split('=')[1].Trim() == "")
+                        {
+                            return "</> No component changed";
+                        }
+                        else
+                        {
+                            // Retornar el valor de la variable
+                            return "</> " + line.Split('=')[1].Trim();
+                        }
+
                     }
                 }
 
