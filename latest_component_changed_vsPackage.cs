@@ -14,7 +14,7 @@ namespace LatestComponentChangedVS
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [InstalledProductRegistration("Custom Extension", "Updates status bar with the latest component changed in -gitconfig variable", "5.0")]
     [ProvideAutoLoad(UIContextGuids80.NoSolution, PackageAutoLoadFlags.BackgroundLoad)]
-    [Guid(MyCommandPackage.PackageGuidString)]
+    [Guid(PackageGuidString)]
     public sealed class MyCommandPackage : AsyncPackage, IVsSolutionEvents
     {
         public const string PackageGuidString = "9430eccd-d8bc-4439-84d5-40a8ddf21079";
