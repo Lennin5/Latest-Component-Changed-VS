@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <Extern href="stdidcmd.h"/>
+  <Extern href="vsshlids.h"/>
+  <Commands package="guidLatestComponentChangedPackage">
+    <!-- Grupos de comandos -->
+    <Groups>
+      <!-- Grupo para el menú Herramientas -->
+      <Group guid="guidLatestComponentChangedPackageCmdSet" id="LatestComponentChangedMenuGroup" priority="0x0600">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS"/>
+      </Group>
+      
+      <!-- Grupo para la barra de herramientas estándar -->
+      <Group guid="guidLatestComponentChangedPackageCmdSet" id="LatestComponentChangedToolbarGroup" priority="0x0000">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_TOOL_STANDARD"/>
+      </Group>
+    </Groups>
+
+    <!-- Botones de comandos -->
+    <Buttons>
+      <!-- Comando del menú Herramientas -->
+      <Button guid="guidLatestComponentChangedPackageCmdSet" id="LatestComponentChangedCommandId" priority="0x0100" type="Button">
+        <Parent guid="guidLatestComponentChangedPackageCmdSet" id="LatestComponentChangedMenuGroup" />
+        <Strings>
+          <ButtonText>Seleccionar Componente</ButtonText>
+        </Strings>
+      </Button>
+      
+      <!-- Comando de la barra de herramientas -->
+      <Button guid="guidLatestComponentChangedPackageCmdSet" id="LatestComponentChangedToolbarCommandId" priority="0x0100" type="Button">
+        <Parent guid="guidLatestComponentChangedPackageCmdSet" id="LatestComponentChangedToolbarGroup" />
+        <Strings>
+          <ButtonText>Component Selector</ButtonText>
+          <ToolTipText>Latest component changed - Click to select another</ToolTipText>
+        </Strings>
+      </Button>
+    </Buttons>
+  </Commands>
+  
+  <Symbols>
+    <GuidSymbol name="guidLatestComponentChangedPackage" value="{9430eccd-d8bc-4439-84d5-40a8ddf21079}" />
+    
+    <!-- Definiciones de GUIDs y IDs de comandos -->
+    <GuidSymbol name="guidLatestComponentChangedPackageCmdSet" value="{7ACE3E22-6BE1-41E8-9E4B-7F2C7E5DB8E7}">
+      <IDSymbol name="LatestComponentChangedMenuGroup" value="0x1020" />
+      <IDSymbol name="LatestComponentChangedToolbarGroup" value="0x1021" />
+      <IDSymbol name="LatestComponentChangedCommandId" value="0x0100" />
+      <IDSymbol name="LatestComponentChangedToolbarCommandId" value="0x0101" />
+    </GuidSymbol>
+  </Symbols>
+</CommandTable>

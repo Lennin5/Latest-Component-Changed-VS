@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <Extern href="stdidcmd.h"/>
+  <Extern href="vsshlids.h"/>
+  <Commands package="guidLatestComponentChangedPackage">
+    <Groups>
+      <Group guid="guidLatestComponentChangedPackageCmdSet" id="MyMenuGroup" priority="0x0600">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS"/>
+      </Group>
+    </Groups>
+    <Buttons>
+      <Button guid="guidLatestComponentChangedPackageCmdSet" id="CommandId" priority="0x0100" type="Button">
+        <Parent guid="guidLatestComponentChangedPackageCmdSet" id="MyMenuGroup" />
+        <Icon guid="guidImages" id="bmpPic1" />
+        <Strings>
+          <ButtonText>Select Component</ButtonText>
+        </Strings>
+      </Button>
+    </Buttons>
+    <Bitmaps>
+      <Bitmap guid="guidImages" href="Resources\CommandIcon.png" usedList="bmpPic1"/>
+    </Bitmaps>
+  </Commands>
+  <Symbols>
+    <!-- Package GUID - This should match the GUID in your package class -->
+    <GuidSymbol name="guidLatestComponentChangedPackage" value="{9430eccd-d8bc-4439-84d5-40a8ddf21079}" />
+    
+    <!-- Command set GUID - This should match the Command set GUID in your package class -->
+    <GuidSymbol name="guidLatestComponentChangedPackageCmdSet" value="{7ACE3E22-6BE1-41E8-9E4B-7F2C7E5DB8E7}">
+      <IDSymbol name="MyMenuGroup" value="0x1020" />
+      <IDSymbol name="CommandId" value="0x0100" />
+    </GuidSymbol>
+    
+    <!-- Image GUID -->
+    <GuidSymbol name="guidImages" value="{B60A3892-0235-4891-8B14-FFADB81D0F8C}">
+      <IDSymbol name="bmpPic1" value="1" />
+    </GuidSymbol>
+  </Symbols>
+</CommandTable>

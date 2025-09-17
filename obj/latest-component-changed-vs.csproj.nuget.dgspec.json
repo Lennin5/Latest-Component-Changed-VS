@@ -1,21 +1,26 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\lennin\\Desktop\\Proyectos Personales\\latest-component-changed-vs\\latest-component-changed-vs.csproj": {}
+    "C:\\Users\\Lenni\\Desktop\\Proyectos Personales\\latest-component-changed-vs\\latest-component-changed-vs.csproj": {}
   },
   "projects": {
-    "C:\\Users\\lennin\\Desktop\\Proyectos Personales\\latest-component-changed-vs\\latest-component-changed-vs.csproj": {
+    "C:\\Users\\Lenni\\Desktop\\Proyectos Personales\\latest-component-changed-vs\\latest-component-changed-vs.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\lennin\\Desktop\\Proyectos Personales\\latest-component-changed-vs\\latest-component-changed-vs.csproj",
+        "projectUniqueName": "C:\\Users\\Lenni\\Desktop\\Proyectos Personales\\latest-component-changed-vs\\latest-component-changed-vs.csproj",
         "projectName": "latest-component-changed-vs",
-        "projectPath": "C:\\Users\\lennin\\Desktop\\Proyectos Personales\\latest-component-changed-vs\\latest-component-changed-vs.csproj",
-        "packagesPath": "C:\\Users\\lennin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\lennin\\Desktop\\Proyectos Personales\\latest-component-changed-vs\\obj\\",
+        "projectPath": "C:\\Users\\Lenni\\Desktop\\Proyectos Personales\\latest-component-changed-vs\\latest-component-changed-vs.csproj",
+        "packagesPath": "C:\\Users\\Lenni\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Lenni\\Desktop\\Proyectos Personales\\latest-component-changed-vs\\obj\\",
         "projectStyle": "PackageReference",
         "skipContentFileWrite": true,
+        "UsingMicrosoftNETSdk": false,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\lennin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Lenni\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [

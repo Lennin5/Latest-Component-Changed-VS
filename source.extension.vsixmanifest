@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="latest_component_changed_vs.8f8e2db8-9203-4c16-bfdb-a63ab4244009" Version="1.0" Language="en-US" Publisher="Lennin Lemus" />
+        <Identity Id="latest_component_changed_vs.8f8e2db8-9203-4c16-bfdb-a63ab4244009" Version="2.0" Language="en-US" Publisher="Lennin Lemus" />
         <DisplayName>Latest Component Changed</DisplayName>
-        <Description xml:space="preserve">This is a Visual Studio's extension that prints/update the .gitconfig custom variable called "latest-component-changed" in statusBar of IDE</Description>
+        <Description xml:space="preserve">Extensión de Visual Studio que muestra el componente actual para commits convencionales en la barra de estado y permite cambiarlo fácilmente.</Description>
         <MoreInfo>https://github.com/Lennin5/Latest-Component-Changed-VS</MoreInfo>
         <Icon>icon.png</Icon>
         <PreviewImage>icon.png</PreviewImage>

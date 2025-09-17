@@ -1,0 +1,727 @@
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.Design;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace latest_component_changed_vs
+{
+    [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
+    [InstalledProductRegistration("Latest Component Changed", "Updates status bar with the latest component changed in .gitconfig", "2.0")]
+    [ProvideAutoLoad(UIContextGuids80.NoSolution, PackageAutoLoadFlags.BackgroundLoad)]
+    [ProvideAutoLoad(UIContextGuids80.SolutionExists, PackageAutoLoadFlags.BackgroundLoad)]
+    [ProvideMenuResource("Menus.ctmenu", 1)]
+    [Guid(PackageGuidString)]
+    public sealed class MyCommandPackage : AsyncPackage
+    {
+        public const string PackageGuidString = "9430eccd-d8bc-4439-84d5-40a8ddf21079";
+        
+        // Command set GUID para nuestro comando
+        public static readonly Guid CommandSet = new Guid("7ACE3E22-6BE1-41E8-9E4B-7F2C7E5DB8E7");
+        
+        // ID del comando que mostrará el selector de componentes
+        public const int CommandId = 0x0100;
+        // ID del comando para el ícono en la barra de herramientas
+        public const int ToolbarCommandId = 0x0101;
+        
+        private IVsStatusbar _statusBar;
+        private FileSystemWatcher _fileWatcher;
+        private System.Windows.Forms.Timer _statusUpdateTimer;
+        private OleMenuCommand _selectorCommand;
+        private OleMenuCommand _toolbarCommand;
+        
+        // Get GitConfigPath from user home directory
+        private static readonly string GitConfigPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), 
+            ".gitconfig");
+
+        protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
+        {
+            // Inicializar el paquete base
+            await base.InitializeAsync(cancellationToken, progress);
+            await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+            
+            // Get status bar service
+            _statusBar = await GetServiceAsync(typeof(SVsStatusbar)) as IVsStatusbar;
+            
+            // Registrar el comando para el selector de componentes
+            await RegisterCommandAsync();
+            
+            // Actualizar la barra de estado inmediatamente
+            UpdateStatusBarWithComponent();
+            
+            // Configurar un temporizador para actualización periódica muy frecuente (cada 1 segundo)
+            StartStatusUpdateTimer();
+            
+            // Configurar observador de archivo para .gitconfig
+            SetupFileWatcher();
+            
+            // Imprimir confirmación de inicialización
+            Debug.WriteLine("Latest Component Changed extension initialized successfully");
+        }
+        
+        // Registrar el comando para mostrar el selector de componentes
+        private async Task RegisterCommandAsync()
+        {
+            await JoinableTaskFactory.SwitchToMainThreadAsync();
+            
+            // Obtener el servicio de comandos
+            var commandService = await GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
+            if (commandService != null)
+            {
+                // Crear el comando del menú Herramientas
+                var menuCommandID = new CommandID(CommandSet, CommandId);
+                _selectorCommand = new OleMenuCommand(ExecuteComponentSelectorCommand, menuCommandID);
+                commandService.AddCommand(_selectorCommand);
+                
+                // Crear el comando de la barra de herramientas con tooltip dinámico
+                var toolbarCommandID = new CommandID(CommandSet, ToolbarCommandId);
+                _toolbarCommand = new OleMenuCommand(ExecuteToolbarComponentSelectorCommand, toolbarCommandID);
+                
+                // Configurar el evento BeforeQueryStatus para actualizar el tooltip
+                _toolbarCommand.BeforeQueryStatus += OnBeforeQueryToolbarStatus;
+                
+                commandService.AddCommand(_toolbarCommand);
+                
+                Debug.WriteLine("Component selector commands registered successfully");
+            }
+        }
+        
+        // Actualizar el estado del comando de la barra de herramientas (para tooltip)
+        private void OnBeforeQueryToolbarStatus(object sender, EventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            
+            if (sender is OleMenuCommand command)
+            {
+                try
+                {
+                    string currentComponent = GetCurrentComponent();
+                    if (string.IsNullOrEmpty(currentComponent))
+                    {
+                        currentComponent = "No component";
+                    }
+                    
+                    // Actualizar el tooltip
+                    command.Text = $"Latest component changed: {currentComponent}\nClick to select another recent component changed";
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error updating toolbar command status: {ex.Message}");
+                }
+            }
+        }
+        
+        // Ejecutar el comando cuando se hace clic en el menú Herramientas
+        private void ExecuteComponentSelectorCommand(object sender, EventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            ShowComponentSelector();
+            Debug.WriteLine("Menu component selector command executed");
+        }
+        
+        // Ejecutar el comando cuando se hace clic en el ícono de la barra de herramientas
+        private void ExecuteToolbarComponentSelectorCommand(object sender, EventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            ShowComponentDropdown();
+            Debug.WriteLine("Toolbar component selector command executed");
+        }
+        
+        // Mostrar dropdown rápido de componentes (para el ícono de la barra de herramientas)
+        private void ShowComponentDropdown()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            
+            try
+            {
+                // Obtener la lista de componentes recientes
+                List<string> components = GetComponentsRecentList();
+                
+                // Si no hay componentes, mostrar un mensaje rápido
+                if (components.Count == 0)
+                {
+                    MessageBox.Show(
+                        "No hay componentes recientes disponibles.",
+                        "Latest Component Changed",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                    return;
+                }
+                
+                // Crear un menú contextual rápido
+                var contextMenu = new ContextMenuStrip();
+                contextMenu.Font = new System.Drawing.Font("Segoe UI", 9F);
+                
+                string currentComponent = GetCurrentComponent();
+                
+                foreach (string component in components)
+                {
+                    var menuItem = new ToolStripMenuItem(component);
+                    
+                    // Marcar el componente actual
+                    if (string.Equals(component, currentComponent, StringComparison.OrdinalIgnoreCase))
+                    {
+                        menuItem.Checked = true;
+                        menuItem.Font = new System.Drawing.Font(menuItem.Font, System.Drawing.FontStyle.Bold);
+                    }
+                    
+                    // Agregar el manejador de clic
+                    menuItem.Click += (s, args) =>
+                    {
+                        // Cambiar al componente seleccionado
+                        SetCurrentComponent(component);
+                        // Actualizar la barra de estado
+                        UpdateStatusBarWithComponent();
+                        // Cerrar el menú
+                        contextMenu.Close();
+                    };
+                    
+                    contextMenu.Items.Add(menuItem);
+                }
+                
+                // Mostrar el menú en la posición del cursor
+                contextMenu.Show(Cursor.Position);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error showing component dropdown: {ex.Message}");
+                MessageBox.Show(
+                    $"Error al mostrar el dropdown de componentes: {ex.Message}",
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+        
+        // Mostrar el selector de componentes como un formulario (para el menú Herramientas)
+        private void ShowComponentSelector()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            
+            try
+            {
+                // Obtener la lista de componentes recientes
+                List<string> components = GetComponentsRecentList();
+                
+                // Si no hay componentes, mostrar un mensaje
+                if (components.Count == 0)
+                {
+                    MessageBox.Show(
+                        "No hay componentes recientes para seleccionar.\nPuede añadir componentes mediante commits convencionales.",
+                        "Latest Component Changed",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                    return;
+                }
+                
+                // Crear un formulario simple para mostrar los componentes
+                using (var form = new ComponentSelectorForm(components, GetCurrentComponent()))
+                {
+                    if (form.ShowDialog() == DialogResult.OK && !string.IsNullOrEmpty(form.SelectedComponent))
+                    {
+                        // Actualizar el componente actual en .gitconfig
+                        SetCurrentComponent(form.SelectedComponent);
+                        
+                        // Actualizar la barra de estado
+                        UpdateStatusBarWithComponent();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error showing component selector: {ex.Message}");
+                MessageBox.Show(
+                    $"Error al mostrar el selector de componentes: {ex.Message}",
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+        
+        // Formulario para seleccionar un componente
+        private class ComponentSelectorForm : Form
+        {
+            private ListBox _listBox;
+            private Button _btnOK;
+            private Button _btnCancel;
+            
+            public string SelectedComponent { get; private set; }
+            
+            public ComponentSelectorForm(List<string> components, string currentComponent)
+            {
+                // Configurar el formulario
+                Text = "Seleccionar Componente";
+                Size = new System.Drawing.Size(400, 300);
+                StartPosition = FormStartPosition.CenterScreen;
+                FormBorderStyle = FormBorderStyle.FixedDialog;
+                MaximizeBox = false;
+                MinimizeBox = false;
+                
+                // Crear el listbox para los componentes
+                _listBox = new ListBox
+                {
+                    Dock = DockStyle.Top,
+                    Height = 200,
+                    SelectionMode = SelectionMode.One
+                };
+                
+                // Añadir los componentes al listbox
+                foreach (var component in components)
+                {
+                    _listBox.Items.Add(component);
+                    
+                    // Seleccionar el componente actual
+                    if (component == currentComponent)
+                    {
+                        _listBox.SelectedItem = component;
+                    }
+                }
+                
+                // Si no hay ningún elemento seleccionado, seleccionar el primero
+                if (_listBox.SelectedIndex == -1 && _listBox.Items.Count > 0)
+                {
+                    _listBox.SelectedIndex = 0;
+                }
+                
+                // Manejar el doble clic para seleccionar y cerrar
+                _listBox.DoubleClick += (s, e) =>
+                {
+                    if (_listBox.SelectedItem != null)
+                    {
+                        SelectedComponent = _listBox.SelectedItem.ToString();
+                        DialogResult = DialogResult.OK;
+                        Close();
+                    }
+                };
+                
+                // Crear los botones
+                _btnOK = new Button
+                {
+                    Text = "OK",
+                    DialogResult = DialogResult.OK,
+                    Location = new System.Drawing.Point(210, 220),
+                    Size = new System.Drawing.Size(75, 23)
+                };
+                
+                _btnCancel = new Button
+                {
+                    Text = "Cancelar",
+                    DialogResult = DialogResult.Cancel,
+                    Location = new System.Drawing.Point(295, 220),
+                    Size = new System.Drawing.Size(75, 23)
+                };
+                
+                // Manejar el clic en OK
+                _btnOK.Click += (s, e) =>
+                {
+                    if (_listBox.SelectedItem != null)
+                    {
+                        SelectedComponent = _listBox.SelectedItem.ToString();
+                    }
+                };
+                
+                // Añadir los controles al formulario
+                Controls.Add(_listBox);
+                Controls.Add(_btnOK);
+                Controls.Add(_btnCancel);
+                
+                // Configurar los botones de aceptar y cancelar
+                AcceptButton = _btnOK;
+                CancelButton = _btnCancel;
+            }
+        }
+        
+        // Setup a file watcher to monitor .gitconfig for changes
+        private void SetupFileWatcher()
+        {
+            try 
+            {
+                if (File.Exists(GitConfigPath))
+                {
+                    Debug.WriteLine($"Monitoring .gitconfig at: {GitConfigPath}");
+                    
+                    // Crear nuevo watcher
+                    _fileWatcher = new FileSystemWatcher
+                    {
+                        Path = Path.GetDirectoryName(GitConfigPath),
+                        Filter = Path.GetFileName(GitConfigPath),
+                        NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.CreationTime | NotifyFilters.FileName
+                    };
+                    
+                    // Agregar manejadores para eventos de cambio
+                    _fileWatcher.Changed += OnGitConfigChanged;
+                    _fileWatcher.Created += OnGitConfigChanged;
+                    _fileWatcher.Renamed += OnGitConfigChanged;
+                    
+                    // Activar el watcher
+                    _fileWatcher.EnableRaisingEvents = true;
+                    
+                    Debug.WriteLine("Git config file watcher activated successfully");
+                }
+                else
+                {
+                    Debug.WriteLine($"Warning: .gitconfig file not found at {GitConfigPath}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error setting up file watcher: {ex.Message}");
+            }
+        }
+        
+        // Manejador para cambios en el archivo .gitconfig
+        private void OnGitConfigChanged(object sender, FileSystemEventArgs e)
+        {
+            Debug.WriteLine($"Git config file changed: {e.ChangeType} - {e.FullPath}");
+            
+            // Enfoque simplificado para actualizar la UI
+            // Solo ignoramos los errores y permitimos que la actualización periódica del timer maneje esto
+            try
+            {
+                // Ignoramos cualquier error aquí
+                Debug.WriteLine($"File change detected. Status bar will update on next timer tick.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error handling file change event: {ex.Message}");
+            }
+        }
+        
+        // Start a timer to update status bar periodically (1 second)
+        private void StartStatusUpdateTimer()
+        {
+            // Usando un timer de Windows Forms que se ejecuta en el hilo de UI
+            // Esto evita problemas de sincronización con la UI
+            var uiTimer = new System.Windows.Forms.Timer();
+            uiTimer.Interval = 1000; // 1 segundo
+            uiTimer.Tick += (sender, e) => 
+            {
+                try
+                {
+                    // En el evento Tick de Windows.Forms.Timer ya estamos en el hilo de UI
+                    UpdateStatusBarWithComponent();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error in status update timer: {ex.Message}");
+                }
+            };
+            uiTimer.Start();
+            
+            // Guardamos referencia para poder detenerlo después
+            _statusUpdateTimer = uiTimer;
+            
+            Debug.WriteLine("Status update timer started successfully");
+        }
+        
+        // Update status bar with latest component from .gitconfig
+        private void UpdateStatusBarWithComponent()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            
+            try
+            {
+                if (_statusBar != null)
+                {
+                    // Obtener el componente actual
+                    string component = GetLatestComponentChanged();
+                    
+                    // Limpiar cualquier texto existente primero
+                    _statusBar.Clear();
+                    
+                    // Código para forzar la actualización de la barra de estado
+                    object icon = (short)Microsoft.VisualStudio.Shell.Interop.Constants.SBAI_Build;
+                    
+                    // Establecer el texto en la barra de estado con un comando asociado
+                    _statusBar.SetText(component);
+                    
+                    // Nota: En Visual Studio, la barra de estado no tiene un método equivalente a SetCommand como en VS Code
+                    // Tendremos que usar un enfoque diferente para hacerla clicable, como registrar un comando global
+                    // que aparezca en el menú contextual o en la barra de herramientas
+                    
+                    // Registro de depuración
+                    Debug.WriteLine($"Status bar updated: {component}");
+                }
+                else
+                {
+                    Debug.WriteLine("Status bar service is null");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error updating status bar: {ex.Message}");
+            }
+        }
+        
+        // Obtener el componente actual (sin el prefijo "</>")
+        private string GetCurrentComponent()
+        {
+            string fullComponent = GetLatestComponentChanged();
+            if (fullComponent.StartsWith("</>"))
+            {
+                return fullComponent.Substring(4).Trim();
+            }
+            return string.Empty;
+        }
+        
+        // Obtener la lista de componentes recientes desde .gitconfig
+        private List<string> GetComponentsRecentList()
+        {
+            List<string> components = new List<string>();
+            try
+            {
+                // Obtener la lista de componentes usando git command
+                var process = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = "git",
+                        Arguments = "config --get variable.latest-components-recent-list",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        CreateNoWindow = true
+                    }
+                };
+                
+                process.Start();
+                string output = process.StandardOutput.ReadToEnd().Trim();
+                process.WaitForExit();
+                
+                // Si hay una lista, procesarla
+                if (!string.IsNullOrEmpty(output))
+                {
+                    // Dividir la lista por comas
+                    string[] componentArray = output.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    
+                    // Añadir cada componente a la lista
+                    foreach (string component in componentArray)
+                    {
+                        string trimmed = component.Trim();
+                        if (!string.IsNullOrEmpty(trimmed))
+                        {
+                            components.Add(trimmed);
+                        }
+                    }
+                }
+                
+                // Si la lista está vacía, añadir el componente actual si existe
+                if (components.Count == 0)
+                {
+                    string current = GetCurrentComponent();
+                    if (!string.IsNullOrEmpty(current))
+                    {
+                        components.Add(current);
+                    }
+                }
+                
+                return components;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error getting components recent list: {ex.Message}");
+                return components;
+            }
+        }
+        
+        // Establecer el componente actual en .gitconfig
+        private void SetCurrentComponent(string component)
+        {
+            if (string.IsNullOrEmpty(component))
+            {
+                return;
+            }
+            
+            try
+            {
+                // Establecer el componente actual
+                var process = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = "git",
+                        Arguments = $"config --global variable.latest-component-changed \"{component}\"",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        CreateNoWindow = true
+                    }
+                };
+                
+                process.Start();
+                process.WaitForExit();
+                
+                // Actualizar la lista de componentes recientes
+                UpdateComponentsRecentList(component);
+                
+                Debug.WriteLine($"Current component set to: {component}");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error setting current component: {ex.Message}");
+            }
+        }
+        
+        // Actualizar la lista de componentes recientes
+        private void UpdateComponentsRecentList(string component)
+        {
+            if (string.IsNullOrEmpty(component))
+            {
+                return;
+            }
+            
+            try
+            {
+                // Obtener la lista actual
+                List<string> components = GetComponentsRecentList();
+                
+                // Eliminar el componente si ya existe
+                components.RemoveAll(c => string.Equals(c, component, StringComparison.OrdinalIgnoreCase));
+                
+                // Añadir el componente al principio
+                components.Insert(0, component);
+                
+                // Limitar a 5 componentes
+                if (components.Count > 5)
+                {
+                    components = components.Take(5).ToList();
+                }
+                
+                // Crear una cadena con los componentes separados por comas
+                string componentsString = string.Join(",", components);
+                
+                // Actualizar la lista en .gitconfig
+                var process = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = "git",
+                        Arguments = $"config --global variable.latest-components-recent-list \"{componentsString}\"",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        CreateNoWindow = true
+                    }
+                };
+                
+                process.Start();
+                process.WaitForExit();
+                
+                Debug.WriteLine($"Components recent list updated: {componentsString}");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error updating components recent list: {ex.Message}");
+            }
+        }
+        
+        // Get latest component from .gitconfig using git command or direct file reading
+        private string GetLatestComponentChanged()
+        {
+            try
+            {
+                // Intentar obtener de Git primero (más confiable)
+                try
+                {
+                    var process = new Process
+                    {
+                        StartInfo = new ProcessStartInfo
+                        {
+                            FileName = "git",
+                            Arguments = "config --get variable.latest-component-changed",
+                            UseShellExecute = false,
+                            RedirectStandardOutput = true,
+                            CreateNoWindow = true
+                        }
+                    };
+                    
+                    process.Start();
+                    string output = process.StandardOutput.ReadToEnd().Trim();
+                    process.WaitForExit();
+                    
+                    if (!string.IsNullOrEmpty(output))
+                    {
+                        Debug.WriteLine($"Componente obtenido vía git command: {output}");
+                        return "</> " + output;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error al ejecutar git command: {ex.Message}");
+                }
+                
+                // Como respaldo, intentar leer el archivo directamente
+                if (File.Exists(GitConfigPath))
+                {
+                    try
+                    {
+                        string[] lines = File.ReadAllLines(GitConfigPath);
+                        bool inVariableSection = false;
+                        
+                        foreach (string line in lines)
+                        {
+                            string trimmedLine = line.Trim();
+                            
+                            // Buscar la sección [variable]
+                            if (trimmedLine.Equals("[variable]", StringComparison.OrdinalIgnoreCase))
+                            {
+                                inVariableSection = true;
+                                continue;
+                            }
+                            
+                            // Si estamos en la sección correcta, buscar latest-component-changed
+                            if (inVariableSection && trimmedLine.StartsWith("latest-component-changed", StringComparison.OrdinalIgnoreCase))
+                            {
+                                string[] parts = trimmedLine.Split(new[] { '=' }, 2);
+                                if (parts.Length == 2)
+                                {
+                                    string value = parts[1].Trim();
+                                    if (!string.IsNullOrEmpty(value))
+                                    {
+                                        Debug.WriteLine($"Componente obtenido vía archivo: {value}");
+                                        return "</> " + value;
+                                    }
+                                }
+                            }
+                            
+                            // Si llegamos a otra sección, salir del bucle
+                            if (inVariableSection && trimmedLine.StartsWith("["))
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error leyendo .gitconfig: {ex.Message}");
+                    }
+                }
+                
+                // Si no se encontró valor, mostrar mensaje predeterminado
+                return "</> No component changed";
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error general: {ex.Message}");
+                return "Error: " + ex.Message;
+            }
+        }
+        
+        // Cleanup resources when package is unloaded
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _statusUpdateTimer?.Dispose();
+                _fileWatcher?.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+    }
+}
