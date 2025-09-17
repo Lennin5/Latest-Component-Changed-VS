@@ -31,6 +31,8 @@ namespace latest_component_changed_vs
         public const int CommandId = 0x0100;
         // ID del comando para el ícono en la barra de herramientas
         public const int ToolbarCommandId = 0x0101;
+        // ID del comando para el ícono en la barra de estado
+        public const int StatusBarCommandId = 0x0102;
         
         private IVsStatusbar _statusBar;
         private FileSystemWatcher _fileWatcher;
@@ -91,6 +93,9 @@ namespace latest_component_changed_vs
                 
                 commandService.AddCommand(_toolbarCommand);
                 
+                // El comando de la barra de estado no es necesario por ahora
+                // Nos enfocamos en el botón de la barra de herramientas con el ícono </>
+                
                 Debug.WriteLine("Component selector commands registered successfully");
             }
         }
@@ -107,11 +112,13 @@ namespace latest_component_changed_vs
                     string currentComponent = GetCurrentComponent();
                     if (string.IsNullOrEmpty(currentComponent))
                     {
-                        currentComponent = "No component";
+                        currentComponent = "No component set";
                     }
                     
-                    // Actualizar el tooltip
-                    command.Text = $"Latest component changed: {currentComponent}\nClick to select another recent component changed";
+                    // Actualizar tanto el texto como el tooltip dinámicamente
+                    command.Text = $"</> {currentComponent}";
+                    
+                    Debug.WriteLine($"Toolbar button updated: </> {currentComponent}");
                 }
                 catch (Exception ex)
                 {
@@ -135,6 +142,8 @@ namespace latest_component_changed_vs
             ShowComponentDropdown();
             Debug.WriteLine("Toolbar component selector command executed");
         }
+        
+
         
         // Mostrar dropdown rápido de componentes (para el ícono de la barra de herramientas)
         private void ShowComponentDropdown()
@@ -438,18 +447,20 @@ namespace latest_component_changed_vs
                     // Limpiar cualquier texto existente primero
                     _statusBar.Clear();
                     
-                    // Código para forzar la actualización de la barra de estado
-                    object icon = (short)Microsoft.VisualStudio.Shell.Interop.Constants.SBAI_Build;
+                    // Crear el texto con el ícono "</>" al inicio
+                    string currentComp = GetCurrentComponent();
+                    if (string.IsNullOrEmpty(currentComp))
+                    {
+                        currentComp = "No component";
+                    }
                     
-                    // Establecer el texto en la barra de estado con un comando asociado
-                    _statusBar.SetText(component);
+                    string statusText = $"</> {currentComp}";
                     
-                    // Nota: En Visual Studio, la barra de estado no tiene un método equivalente a SetCommand como en VS Code
-                    // Tendremos que usar un enfoque diferente para hacerla clicable, como registrar un comando global
-                    // que aparezca en el menú contextual o en la barra de herramientas
+                    // Establecer el texto en la barra de estado
+                    _statusBar.SetText(statusText);
                     
                     // Registro de depuración
-                    Debug.WriteLine($"Status bar updated: {component}");
+                    Debug.WriteLine($"Status bar updated: {statusText}");
                 }
                 else
                 {

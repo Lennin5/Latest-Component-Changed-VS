@@ -26,12 +26,14 @@
         </Strings>
       </Button>
       
-      <!-- Comando de la barra de herramientas -->
+      <!-- Comando de la barra de herramientas con ícono de texto -->
       <Button guid="guidLatestComponentChangedPackageCmdSet" id="LatestComponentChangedToolbarCommandId" priority="0x0100" type="Button">
         <Parent guid="guidLatestComponentChangedPackageCmdSet" id="LatestComponentChangedToolbarGroup" />
+        <CommandFlag>TextOnly</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
         <Strings>
-          <ButtonText>Component Selector</ButtonText>
-          <ToolTipText>Latest component changed - Click to select another</ToolTipText>
+          <ButtonText>&lt;/&gt;</ButtonText>
+          <ToolTipText>Latest component changed\nClick to select another recent component</ToolTipText>
         </Strings>
       </Button>
     </Buttons>
