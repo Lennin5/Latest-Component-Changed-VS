@@ -15,47 +15,111 @@ using System.Windows.Forms;
 
 namespace latest_component_changed_vs
 {
-    // Renderer personalizado para que el menú se vea similar al estilo de VS
+    // Renderer personalizado para que el menú se vea similar al estilo de VS en modo oscuro
     public class VSMenuRenderer : ToolStripProfessionalRenderer
     {
         public VSMenuRenderer() : base(new VSColorTable()) { }
+        
+        // Asegurar que el texto del encabezado siempre se renderice correctamente
+        protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)
+        {
+            // Si es el elemento encabezado, personalizar el color del texto
+            if (e.Item.Tag != null && e.Item.Tag.ToString() == "header")
+            {
+                // Color de texto rojo para el encabezado
+                e.TextColor = Color.FromArgb(240, 71, 71);  // Rojo brillante para resaltar
+                base.OnRenderItemText(e);
+                return;
+            }
+            
+            // Color de texto para ítems normales en tema oscuro
+            if (!e.Item.Selected)
+            {
+                e.TextColor = Color.FromArgb(220, 220, 220);  // Texto claro para tema oscuro
+            }
+            else
+            {
+                e.TextColor = Color.FromArgb(255, 255, 255);  // Blanco para elementos seleccionados
+            }
+            
+            base.OnRenderItemText(e);
+        }
 
         protected override void OnRenderMenuItemBackground(ToolStripItemRenderEventArgs e)
         {
-            if (!e.Item.Selected)
+            // Si es el encabezado (identificado por Tag o por sus propiedades visuales), siempre usar el renderizado base
+            if (e.Item.Tag != null && e.Item.Tag.ToString() == "header")
+            {
+                base.OnRenderMenuItemBackground(e);
+                return;
+            }
+            
+            // Si el elemento no está seleccionado o está deshabilitado, usar renderizado base
+            if (!e.Item.Selected || !e.Item.Enabled)
             {
                 base.OnRenderMenuItemBackground(e);
                 return;
             }
 
-            var rect = new Rectangle(2, 0, e.Item.Width - 4, e.Item.Height);
+            var rect = new Rectangle(0, 0, e.Item.Width, e.Item.Height);
 
-            using (var brush = new SolidBrush(Color.FromArgb(45, 130, 220)))
+            // Usar color azul oscuro para selección en tema oscuro
+            using (var brush = new SolidBrush(Color.FromArgb(62, 62, 64)))
             {
                 e.Graphics.FillRectangle(brush, rect);
             }
 
-            // Dibuja un borde sutil si es necesario
-            using (var pen = new Pen(Color.FromArgb(75, 150, 230)))
+            // Dibuja un borde sutil si es necesario, más oscuro para tema oscuro
+            using (var pen = new Pen(Color.FromArgb(70, 70, 72)))
             {
                 e.Graphics.DrawRectangle(pen, rect);
             }
         }
 
-        // Mejora la apariencia del check
+        // Personalizar el renderizado del fondo del encabezado
+        protected override void OnRenderToolStripBackground(ToolStripRenderEventArgs e)
+        {
+            base.OnRenderToolStripBackground(e);
+            
+            // Después del renderizado base, dibujar fondos personalizados para elementos específicos
+            foreach (ToolStripItem item in e.ToolStrip.Items)
+            {
+                if (item.Tag != null && item.Tag.ToString() == "header")
+                {
+                    // Dibujar fondo personalizado para el encabezado en tema oscuro
+                    using (var brush = new SolidBrush(Color.FromArgb(45, 45, 48)))
+                    {
+                        e.Graphics.FillRectangle(brush, item.Bounds);
+                    }
+                    
+                    // Línea inferior sutil para tema oscuro
+                    using (var pen = new Pen(Color.FromArgb(70, 70, 72)))
+                    {
+                        e.Graphics.DrawLine(
+                            pen, 
+                            item.Bounds.Left, item.Bounds.Bottom - 1,
+                            item.Bounds.Right, item.Bounds.Bottom - 1);
+                    }
+                }
+            }
+        }
+
+        // Mejora la apariencia del check para tema oscuro
         protected override void OnRenderItemCheck(ToolStripItemImageRenderEventArgs e)
         {
             Rectangle rect = new Rectangle(e.ImageRectangle.Left + 2, e.ImageRectangle.Top + 2,
                                           e.ImageRectangle.Width - 4, e.ImageRectangle.Height - 4);
 
-            using (var brush = new SolidBrush(Color.FromArgb(45, 130, 220)))
+            // Color de fondo para el check en tema oscuro
+            using (var brush = new SolidBrush(Color.FromArgb(75, 75, 78)))
             {
                 e.Graphics.FillRectangle(brush, rect);
             }
 
-            using (var pen = new Pen(Color.White, 2f))
+            // Color de la palomita en tema oscuro (más brillante para contraste)
+            using (var pen = new Pen(Color.FromArgb(220, 220, 220), 2f))
             {
-                // Dibuja un checkmark más similar al de VS
+                // Dibuja un checkmark más similar al de VS en tema oscuro
                 int x = rect.Left + 3;
                 int y = rect.Top + rect.Height / 2;
                 e.Graphics.DrawLine(pen, x, y, x + 2, y + 2);
@@ -64,19 +128,32 @@ namespace latest_component_changed_vs
         }
     }
 
-    // Tabla de colores personalizada para el estilo VS
+    // Tabla de colores personalizada para el estilo VS en modo oscuro
     public class VSColorTable : ProfessionalColorTable
     {
-        public override Color MenuItemSelectedGradientBegin => Color.FromArgb(45, 130, 220);
-        public override Color MenuItemSelectedGradientEnd => Color.FromArgb(45, 130, 220);
-        public override Color MenuItemBorder => Color.FromArgb(45, 130, 220);
-        public override Color MenuBorder => Color.FromArgb(200, 200, 200);
-        public override Color MenuItemPressedGradientBegin => Color.FromArgb(75, 150, 230);
-        public override Color MenuItemPressedGradientEnd => Color.FromArgb(75, 150, 230);
-        public override Color ToolStripDropDownBackground => Color.FromArgb(240, 240, 240);
-        public override Color ImageMarginGradientBegin => Color.FromArgb(240, 240, 240);
-        public override Color ImageMarginGradientMiddle => Color.FromArgb(240, 240, 240);
-        public override Color ImageMarginGradientEnd => Color.FromArgb(240, 240, 240);
+        // Colores para elementos seleccionados (azul oscuro)
+        public override Color MenuItemSelectedGradientBegin => Color.FromArgb(51, 51, 52);
+        public override Color MenuItemSelectedGradientEnd => Color.FromArgb(51, 51, 52);
+        public override Color MenuItemBorder => Color.FromArgb(51, 51, 52);
+        
+        // Borde del menú (más oscuro)
+        public override Color MenuBorder => Color.FromArgb(60, 60, 60);
+        
+        // Colores para elementos presionados (azul oscuro)
+        public override Color MenuItemPressedGradientBegin => Color.FromArgb(86, 86, 86);
+        public override Color MenuItemPressedGradientEnd => Color.FromArgb(86, 86, 86);
+        
+        // Fondo y márgenes del menú desplegable (modo oscuro)
+        public override Color ToolStripDropDownBackground => Color.FromArgb(37, 37, 38);
+        public override Color ImageMarginGradientBegin => Color.FromArgb(37, 37, 38);
+        public override Color ImageMarginGradientMiddle => Color.FromArgb(37, 37, 38);
+        public override Color ImageMarginGradientEnd => Color.FromArgb(37, 37, 38);
+        
+        // Colores adicionales para consistencia en tema oscuro
+        public override Color ButtonSelectedHighlight => Color.FromArgb(86, 86, 86);
+        public override Color ButtonSelectedHighlightBorder => Color.FromArgb(86, 86, 86);
+        public override Color ButtonPressedHighlight => Color.FromArgb(102, 102, 102);
+        public override Color ButtonPressedHighlightBorder => Color.FromArgb(102, 102, 102);
     }
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [InstalledProductRegistration("Latest Component Changed", "Updates status bar with the latest component changed in .gitconfig", "2.0")]
@@ -251,7 +328,11 @@ namespace latest_component_changed_vs
                 {
                     Enabled = false,
                     Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold),
-                    BackColor = Color.FromArgb(215, 230, 245)  // Color de fondo similar al de VS
+                    BackColor = Color.FromArgb(45, 45, 48),  // Color de fondo oscuro para tema VS dark
+                    ForeColor = Color.FromArgb(240, 71, 71),  // Color de texto rojo
+                    Tag = "header",  // Marcar como encabezado para identificación fácil
+                    AutoSize = false,  // Evitar cambios de tamaño automáticos
+                    Height = 22  // Altura fija similar a los encabezados de VS
                 };
                 contextMenu.Items.Add(headerItem);
 
@@ -267,7 +348,7 @@ namespace latest_component_changed_vs
                         if (item != null)
                         {
                             args.Graphics.DrawLine(
-                                new Pen(Color.FromArgb(200, 200, 200)),
+                                new Pen(Color.FromArgb(70, 70, 72)),  // Línea más oscura para tema oscuro
                                 0, item.Height / 2,
                                 item.Width, item.Height / 2);
                         }
