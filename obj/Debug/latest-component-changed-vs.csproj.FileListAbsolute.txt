@@ -21,6 +21,3 @@ C:\Users\Lenni\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debu
 C:\Users\Lenni\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\extension.vsixmanifest
 C:\Users\Lenni\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\files.json
 C:\Users\Lenni\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\createTemplateManifests.cache
-C:\Users\Lenni\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\VSCT.read.1.tlog
-C:\Users\Lenni\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\VSCT.write.1.tlog
-C:\Users\Lenni\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\_EmptyResource.resources.original

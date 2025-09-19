@@ -26,8 +26,8 @@ namespace latest_component_changed_vs
             // Si es el elemento encabezado, personalizar el color del texto
             if (e.Item.Tag != null && e.Item.Tag.ToString() == "header")
             {
-                // Color de texto rojo para el encabezado
-                e.TextColor = Color.FromArgb(240, 71, 71);  // Rojo brillante para resaltar
+                // Color de texto blanco para el encabezado
+                e.TextColor = Color.FromArgb(255, 255, 255);  // Blanco puro para el encabezado
                 base.OnRenderItemText(e);
                 return;
             }
@@ -47,10 +47,11 @@ namespace latest_component_changed_vs
 
         protected override void OnRenderMenuItemBackground(ToolStripItemRenderEventArgs e)
         {
-            // Si es el encabezado (identificado por Tag o por sus propiedades visuales), siempre usar el renderizado base
+            // Si es el encabezado (identificado por Tag), hacer el fondo transparente al hacer hover
             if (e.Item.Tag != null && e.Item.Tag.ToString() == "header")
             {
-                base.OnRenderMenuItemBackground(e);
+                // No renderizar un fondo especial para el hover en el encabezado
+                // Esto hace que el fondo permanezca igual cuando se hace hover
                 return;
             }
             
@@ -323,17 +324,21 @@ namespace latest_component_changed_vs
                 string currentComponent = GetCurrentComponent();
 
                 // Primero agregar un encabezado (similar a "extension vsc (current)" en la captura)
-                string headerText = $"Recent Components Changed";
+                string headerText = "Recent Components Changed";
                 var headerItem = new ToolStripMenuItem(headerText)
                 {
-                    Enabled = false,
+                    Enabled = true,  // Habilitado para asegurar que se muestre correctamente
                     Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold),
                     BackColor = Color.FromArgb(45, 45, 48),  // Color de fondo oscuro para tema VS dark
-                    ForeColor = Color.FromArgb(240, 71, 71),  // Color de texto rojo
+                    ForeColor = Color.FromArgb(255, 255, 255),  // Color de texto blanco
                     Tag = "header",  // Marcar como encabezado para identificación fácil
-                    AutoSize = false,  // Evitar cambios de tamaño automáticos
-                    Height = 22  // Altura fija similar a los encabezados de VS
+                    DisplayStyle = ToolStripItemDisplayStyle.Text,  // Forzar mostrar texto
+                    AutoSize = true,  // Permitir autosize para asegurar que el texto sea visible
+                    TextAlign = ContentAlignment.MiddleLeft  // Alineación a la izquierda
                 };
+                
+                // Evitar que se cierre el menú al hacer clic en el encabezado
+                headerItem.Click += (s, e) => ((ToolStripDropDownItem)s).ShowDropDown();
                 contextMenu.Items.Add(headerItem);
 
                 // Agregar un separador después del título
@@ -378,14 +383,17 @@ namespace latest_component_changed_vs
                     }
 
                     // Agregar el manejador de clic
-                    menuItem.Click += async (s, args) =>
+                    menuItem.Click += (s, args) =>
                     {
                         // Cambiar al componente seleccionado (sin "(current)")
                         SetCurrentComponent(cleanComponent); // Usamos la versión limpia sin "(current)"
 
-                        // Actualizar la barra de estado en el hilo de UI
-                        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-                        UpdateStatusBarWithComponent();
+                        // Para evitar warnings VSTHRD, usar JoinableTaskFactory
+                        _ = JoinableTaskFactory.RunAsync(async () =>
+                        {
+                            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                            UpdateStatusBarWithComponent();
+                        });
 
                         // Cerrar el menú
                         contextMenu.Close();
