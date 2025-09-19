@@ -33,7 +33,7 @@
         <CommandFlag>DynamicVisibility</CommandFlag>
         <Strings>
           <ButtonText>&lt;/&gt;</ButtonText>
-          <ToolTipText>Latest component changed\nClick to select another recent component</ToolTipText>
+          <ToolTipText>Click to select another recent component</ToolTipText>
         </Strings>
       </Button>
     </Buttons>
