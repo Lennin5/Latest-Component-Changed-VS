@@ -174,10 +174,20 @@ namespace latest_component_changed_vs
                 
                 foreach (string component in components)
                 {
-                    var menuItem = new ToolStripMenuItem(component);
+                    // Determinar si es el componente actual y eliminar "(current)" si ya existe
+                    string cleanComponent = component.EndsWith(" (current)", StringComparison.OrdinalIgnoreCase)
+                        ? component.Substring(0, component.Length - 9)
+                        : component;
+                    
+                    bool isCurrentComponent = string.Equals(cleanComponent, currentComponent, StringComparison.OrdinalIgnoreCase);
+                    
+                    // Agregar "(current)" al texto del elemento si es el actual
+                    string displayText = isCurrentComponent ? $"{cleanComponent} (current)" : cleanComponent;
+                    
+                    var menuItem = new ToolStripMenuItem(displayText);
                     
                     // Marcar el componente actual
-                    if (string.Equals(component, currentComponent, StringComparison.OrdinalIgnoreCase))
+                    if (isCurrentComponent)
                     {
                         menuItem.Checked = true;
                         menuItem.Font = new System.Drawing.Font(menuItem.Font, System.Drawing.FontStyle.Bold);
@@ -186,8 +196,8 @@ namespace latest_component_changed_vs
                     // Agregar el manejador de clic
                     menuItem.Click += (s, args) =>
                     {
-                        // Cambiar al componente seleccionado
-                        SetCurrentComponent(component);
+                        // Cambiar al componente seleccionado (sin "(current)")
+                        SetCurrentComponent(cleanComponent); // Usamos la versión limpia sin "(current)"
                         // Actualizar la barra de estado
                         UpdateStatusBarWithComponent();
                         // Cerrar el menú
@@ -286,12 +296,23 @@ namespace latest_component_changed_vs
                 // Añadir los componentes al listbox
                 foreach (var component in components)
                 {
-                    _listBox.Items.Add(component);
+                    // Determinar si es el componente actual y eliminar "(current)" si ya existe
+                    string cleanComponent = component.EndsWith(" (current)", StringComparison.OrdinalIgnoreCase)
+                        ? component.Substring(0, component.Length - 9) 
+                        : component;
+                    
+                    bool isCurrentComponent = string.Equals(cleanComponent, currentComponent, StringComparison.OrdinalIgnoreCase);
+                    
+                    // Agregar texto "(current)" si es el componente actual
+                    string displayText = isCurrentComponent ? $"{cleanComponent} (current)" : cleanComponent;
+                    
+                    // Agregar al listbox
+                    _listBox.Items.Add(displayText);
                     
                     // Seleccionar el componente actual
-                    if (component == currentComponent)
+                    if (isCurrentComponent)
                     {
-                        _listBox.SelectedItem = component;
+                        _listBox.SelectedItem = displayText;
                     }
                 }
                 
@@ -306,7 +327,11 @@ namespace latest_component_changed_vs
                 {
                     if (_listBox.SelectedItem != null)
                     {
-                        SelectedComponent = _listBox.SelectedItem.ToString();
+                        // Eliminar el sufijo "(current)" si existe
+                        string selectedText = _listBox.SelectedItem.ToString();
+                        SelectedComponent = selectedText.EndsWith(" (current)", StringComparison.OrdinalIgnoreCase)
+                            ? selectedText.Substring(0, selectedText.Length - 9)
+                            : selectedText;
                         DialogResult = DialogResult.OK;
                         Close();
                     }
@@ -334,7 +359,11 @@ namespace latest_component_changed_vs
                 {
                     if (_listBox.SelectedItem != null)
                     {
-                        SelectedComponent = _listBox.SelectedItem.ToString();
+                        // Eliminar el sufijo "(current)" si existe
+                        string selectedText = _listBox.SelectedItem.ToString();
+                        SelectedComponent = selectedText.EndsWith(" (current)", StringComparison.OrdinalIgnoreCase)
+                            ? selectedText.Substring(0, selectedText.Length - 9)
+                            : selectedText;
                     }
                 };
                 

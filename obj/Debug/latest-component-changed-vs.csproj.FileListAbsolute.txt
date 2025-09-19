@@ -9,11 +9,8 @@ C:\Users\Lenni\Desktop\Proyectos Personales\latest-component-changed-vs\bin\Debu
 C:\Users\Lenni\Desktop\Proyectos Personales\latest-component-changed-vs\bin\Debug\latest-component-changed-vs.vsix
 C:\Users\Lenni\Desktop\Proyectos Personales\latest-component-changed-vs\bin\Debug\extension.vsixmanifest
 C:\Users\Lenni\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\LatestComponentChangedCommands_new.cto
-C:\Users\Lenni\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\VSCT.read.1.tlog
-C:\Users\Lenni\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\VSCT.write.1.tlog
 C:\Users\Lenni\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\resources.json
 C:\Users\Lenni\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\ctoFiles.json
-C:\Users\Lenni\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\_EmptyResource.resources.original
 C:\Users\Lenni\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\mergeCto.cache
 C:\Users\Lenni\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\latest-component-changed-vs.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\Lenni\Desktop\Proyectos Personales\latest-component-changed-vs\obj\Debug\latest-component-changed-vs.csproj.CoreCompileInputs.cache
